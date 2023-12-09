@@ -1,13 +1,13 @@
 <div class="container justify-content-center ip-products-grid">
   <ip-product *ngFor="let product of products; index as index"
-              [index]="index"
+              [index]="index+1"
               [product]="product"></ip-product>
 
   <div class="alert alert-light" role="alert">
     <div class="row justify-content-center">
       <div class="col-6 text-start">
       </div>
-      <div class="col col-1 text-start fw-bold">
+      <div class="col col-1 text-start">
         Total:
       </div>
       <div class="col col-2 text-end fw-bold">
