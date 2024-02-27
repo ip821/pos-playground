@@ -1,0 +1,25 @@
+<div class="modal-header">
+  <h4 class="modal-title"
+      id="modal-basic-title">Softpay payment</h4>
+  <button type="button"
+          class="btn-close"
+          aria-label="Close"
+          (click)="activeModal.dismiss()"></button>
+</div>
+<div class="modal-body">
+  <div class="alert alert-secondary">
+    Request ID: {{ getRequestId() }}
+    <br>
+    State: {{ getState() }}
+  </div>
+  <div *ngIf="paymentResult?.failure"
+       class="alert alert-danger">
+    Failure: {{ getFailure() }}
+  </div>
+  <div class="modal-footer">
+    <button type="button"
+            (click)="activeModal.close()"
+            class="btn btn-outline-dark">Close
+    </button>
+  </div>
+</div>

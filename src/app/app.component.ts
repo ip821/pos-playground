@@ -1,6 +1,6 @@
-import { Component } from '@angular/core';
-import { CommonModule } from '@angular/common';
-import { RouterOutlet } from '@angular/router';
+import {Component} from '@angular/core';
+import {CommonModule} from '@angular/common';
+import {RouterOutlet} from '@angular/router';
 import {NgbModal, NgbModule} from "@ng-bootstrap/ng-bootstrap";
 
 import {ProductGridComponent} from "./products/product-grid.component";
@@ -8,6 +8,8 @@ import {TProduct} from "./products/product";
 import printJS from "print-js";
 import {PaymentModalComponent} from "./payment/payment-modal.component";
 import {SettingsModalComponent} from "./settings/settings-modal.component";
+import {firstValueFrom} from "rxjs";
+import {TransactionStatusComponent} from "./transaction/transaction-status.component";
 
 @Component({
   selector: 'ip-app-root',
@@ -34,8 +36,14 @@ export class AppComponent {
     printJS("receipt-div", "html");
   }
 
-  onPayClicked() {
-    this.modal.open(PaymentModalComponent);
+  async onPayClicked() {
+    const paymentModal = this.modal.open(PaymentModalComponent);
+    const paymentResult = await firstValueFrom(paymentModal.closed, {defaultValue: undefined});
+
+    if (paymentResult) {
+      const transactionModal = this.modal.open(TransactionStatusComponent);
+      transactionModal.componentInstance.paymentResult = paymentResult;
+    }
   }
 
   onSettingsClick() {
