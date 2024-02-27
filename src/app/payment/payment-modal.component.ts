@@ -40,13 +40,14 @@ export class PaymentModalComponent {
   async onSubmit(form: NgForm) {
     this.isFormValid = !!form.valid;
     if (this.isFormValid) {
-      const result = await this.makePayment(this.paymentSettingsService.getPaymentSettings());
+      await this.makePayment(this.paymentSettingsService.getPaymentSettings(), 5);
+      const result = await this.makePayment(this.paymentSettingsService.getPaymentSettings(), this.amount!);
       if (result)
         this.activeModal.close(result);
     }
   }
 
-  private async makePayment(paymentSettings: PaymentSettings): Promise<PaymentModalComponentResult | undefined> {
+  private async makePayment(paymentSettings: PaymentSettings, amount: number): Promise<PaymentModalComponentResult | undefined> {
     this.errorMessage = "";
     try {
       const accessToken = await this.softpayAuth.getAccessToken(paymentSettings.clientId, paymentSettings.secret);
@@ -69,7 +70,7 @@ export class PaymentModalComponent {
         accessToken,
         merchant.merchantReference,
         request.requestId, {
-          amount: (this.amount! * 100).toString(),
+          amount: (amount * 100).toString(),
           appId: appId,
           currencyCode: "DKK"
         });
