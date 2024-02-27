@@ -35,6 +35,7 @@ export class PaymentModalComponent {
   public amount?: number = undefined;
   private isFormValid = true;
   public errorMessage?: string;
+  public appId?: string;
 
   async onSubmit(form: NgForm) {
     this.isFormValid = !!form.valid;
@@ -61,6 +62,7 @@ export class PaymentModalComponent {
       if (!appId) {
         appId = await this.softpayClient.processAppId();
       }
+      this.appId = appId;
       console.log(appId);
 
       await this.softpayApi.startTransaction(
