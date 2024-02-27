@@ -18,8 +18,8 @@ export class SoftpayClient {
 
   public processAppId() {
     const promise = new Promise<string>((resolve, reject) => {
-      const client = this.create(failure => {
-        resolve(failure);
+      const client = this.create((response, failure) => {
+        resolve(response.appId);
       });
       client.processAppId();
     });
@@ -28,7 +28,7 @@ export class SoftpayClient {
 
   public processPending(requestId: string): Promise<Failure> {
     const promise = new Promise<Failure>((resolve, reject) => {
-      const client = this.create(failure => {
+      const client = this.create((_, failure) => {
         resolve(failure);
       });
       client.processPending(requestId);
@@ -36,7 +36,7 @@ export class SoftpayClient {
     return promise;
   }
 
-  private create(onResponse: (failure: any) => void) {
+  private create(onResponse: (response:any, failure: any) => void) {
     const environment = "sandbox";
     const pwa = null;
     const callback = '#';
@@ -52,7 +52,7 @@ export class SoftpayClient {
       console.log(response);
       console.log(failure);
       client.log(`Response callback: ${response} -> (${failure ?? 'no failure available'}, ${params ?? 'no params available'})`)
-      onResponse(failure);
+      onResponse(response, failure);
     }
 
     return Softpay.newClient(options)

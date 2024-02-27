@@ -5,7 +5,7 @@ import {FormsModule, NgForm} from "@angular/forms";
 import {PaymentSettings, PaymentSettingsService} from "../settings/payment-settings.service";
 import {SoftpayAuthService} from "../softpay/softpay-auth.service";
 import {SoftpayApi} from "../softpay/api";
-import {Failure, SoftpayClient} from "../softpay/softpay-client.factory";
+import {Failure, SoftpayClient} from "../softpay/softpay-client";
 import {InputFocusDirective} from "../input-focus.directive";
 
 export type PaymentModalComponentResult = {
