@@ -27,6 +27,11 @@
       </div>
     </div>
 
+    <div *ngIf="errorMessage"
+         class="alert alert-danger">
+      Failure: {{ errorMessage }}
+    </div>
+
   </div>
   <div class="modal-footer">
     <button type="submit"

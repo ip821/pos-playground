@@ -19,6 +19,7 @@ export type RequestType = "PAYMENT" | "REFUND";
 export type CreateRequestResponse = {
   requestId: string;
   expiresAt: string;
+  message?: string;
 };
 
 export type Transaction = {
@@ -28,9 +29,8 @@ export type Transaction = {
 };
 
 export type StartTransactionRequest = {
-  requestId: string;
   appId: string;
-  amount: number;
+  amount: string;
   currencyCode: string;
 };
 
@@ -68,38 +68,54 @@ export class SoftpayApi {
     return firstValueFrom(result$);
   }
 
-  async createRequest(accessToken: string, requestType: RequestType): Promise<CreateRequestResponse> {
+  async createRequest(
+    accessToken: string,
+    merchantRef: string,
+    requestType: RequestType
+  ): Promise<CreateRequestResponse> {
     const result$: any = this.httpClient.post(
       this.softpayUrl + "/api-gateway/v2/api/cloud/transactions",
       `{"action":"${requestType}"}`, {
         headers: {
           "Authorization": `Bearer ${accessToken}`,
-          "Content-Type": "application/json"
+          "Content-Type": "application/json",
+          "X-Softpay-Tenant-Reference": merchantRef
         }
       }
     );
     return firstValueFrom(result$);
   }
 
-  async getTransaction(accessToken: string, requestId: string): Promise<Transaction> {
+  async getTransaction(
+    accessToken: string,
+    merchantRef: string,
+    requestId: string
+  ): Promise<Transaction> {
     const result$: any = this.httpClient.get(
       this.softpayUrl + "/api-gateway/v2/api/cloud/transactions/" + requestId, {
         headers: {
           "Authorization": `Bearer ${accessToken}`,
-          "Content-Type": "application/json"
+          "Content-Type": "application/json",
+          "X-Softpay-Tenant-Reference": merchantRef
         }
       }
     );
     return firstValueFrom(result$);
   }
 
-  async startTransaction(accessToken: string, request: StartTransactionRequest): Promise<any> {
+  async startTransaction(
+    accessToken: string,
+    merchantRef: string,
+    requestId: string,
+    request: StartTransactionRequest
+  ): Promise<any> {
     const result$: any = this.httpClient.put(
-      this.softpayUrl + "/api-gateway/v2/api/cloud/transactions/" + request.requestId,
+      this.softpayUrl + "/api-gateway/v2/api/cloud/transactions/" + requestId,
       JSON.stringify(request), {
         headers: {
           "Authorization": `Bearer ${accessToken}`,
-          "Content-Type": "application/json"
+          "Content-Type": "application/json",
+          "X-Softpay-Tenant-Reference": merchantRef
         }
       }
     );

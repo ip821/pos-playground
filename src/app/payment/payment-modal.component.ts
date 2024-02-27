@@ -7,16 +7,18 @@ import {SoftpayAuthService} from "../softpay/softpay-auth.service";
 import {SoftpayApi} from "../softpay/api";
 import {Failure, SoftpayClient} from "../softpay/softpay-client";
 import {InputFocusDirective} from "../input-focus.directive";
+import {NgIf} from "@angular/common";
 
 export type PaymentModalComponentResult = {
   requestId: string;
+  merchantRef: string;
   failure?: Failure;
 };
 
 @Component({
   selector: 'ip-payment-modal',
   standalone: true,
-  imports: [NgbDatepickerModule, FormsModule, InputFocusDirective],
+  imports: [NgbDatepickerModule, FormsModule, InputFocusDirective, NgIf],
   templateUrl: './payment-modal.component.html',
 })
 export class PaymentModalComponent {
@@ -32,39 +34,54 @@ export class PaymentModalComponent {
 
   public amount?: number = undefined;
   private isFormValid = true;
+  public errorMessage?: string;
 
   async onSubmit(form: NgForm) {
     this.isFormValid = !!form.valid;
     if (this.isFormValid) {
       const result = await this.makePayment(this.paymentSettingsService.getPaymentSettings());
-      this.activeModal.close(result);
+      if (result)
+        this.activeModal.close(result);
     }
   }
 
-  private async makePayment(paymentSettings: PaymentSettings): Promise<PaymentModalComponentResult> {
-    const accessToken = await this.softpayAuth.getAccessToken(paymentSettings.clientId, paymentSettings.secret);
-    const merchants = await this.softpayApi.getMerchants(accessToken);
+  private async makePayment(paymentSettings: PaymentSettings): Promise<PaymentModalComponentResult | undefined> {
+    this.errorMessage = "";
+    try {
+      const accessToken = await this.softpayAuth.getAccessToken(paymentSettings.clientId, paymentSettings.secret);
+      const merchants = await this.softpayApi.getMerchants(accessToken);
 
-    const merchant = merchants.first();
-    console.log(merchant);
+      const merchant = merchants.first();
+      console.log(merchant);
 
-    const request = await this.softpayApi.createRequest(accessToken, "PAYMENT");
-    console.log(request);
+      const request = await this.softpayApi.createRequest(accessToken, merchant.merchantReference, "PAYMENT");
+      console.log(request);
 
-    const appId = await this.softpayClient.processAppId();
-    console.log(appId);
+      const appId = paymentSettings.appId ?? await this.softpayClient.processAppId();
+      console.log(appId);
 
-    await this.softpayApi.startTransaction(accessToken, {
-      requestId: request.requestId,
-      amount: this.amount!,
-      appId: appId,
-      currencyCode: "DKK"
-    });
+      await this.softpayApi.startTransaction(
+        accessToken,
+        merchant.merchantReference,
+        request.requestId, {
+          amount: (this.amount! * 100).toString(),
+          appId: appId,
+          currencyCode: "DKK"
+        });
 
-    const failure = await this.softpayClient.processPending(request.requestId)
-    console.log(failure);
+      const failure = await this.softpayClient.processPending(request.requestId)
+      console.log(failure);
 
-    return {requestId: request.requestId, failure};
+      return {
+        requestId: request.requestId,
+        merchantRef: merchant.merchantReference,
+        failure
+      };
+    } catch (e: any) {
+      this.errorMessage = e.error.message ?? "Unknown error";
+    }
+
+    return undefined;
   }
 
   wasFormValidated() {

@@ -30,7 +30,11 @@ export class TransactionStatusComponent implements OnInit {
   async ngOnInit(): Promise<void> {
     const paymentSettings = this.paymentSettingsService.getPaymentSettings();
     const accessToken = await this.softpayAuthService.getAccessToken(paymentSettings.clientId, paymentSettings.secret);
-    this.transaction = await this.softpayApi.getTransaction(accessToken, this.paymentResult!.requestId);
+    this.transaction = await this.softpayApi.getTransaction(
+      accessToken,
+      this.paymentResult!.merchantRef,
+      this.paymentResult!.requestId
+    );
   }
 
   getRequestId() {
