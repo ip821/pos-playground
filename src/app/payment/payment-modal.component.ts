@@ -57,7 +57,10 @@ export class PaymentModalComponent {
       const request = await this.softpayApi.createRequest(accessToken, merchant.merchantReference, "PAYMENT");
       console.log(request);
 
-      const appId = paymentSettings.appId ?? await this.softpayClient.processAppId();
+      let appId = paymentSettings.appId;
+      if (!appId) {
+        appId = await this.softpayClient.processAppId();
+      }
       console.log(appId);
 
       await this.softpayApi.startTransaction(
