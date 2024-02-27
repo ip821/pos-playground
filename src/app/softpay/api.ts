@@ -27,6 +27,13 @@ export type Transaction = {
   type: string;
 };
 
+export type StartTransactionRequest = {
+  requestId: string;
+  appId: string;
+  amount: number;
+  currencyCode: string;
+};
+
 @Injectable({providedIn: "root"})
 export class SoftpayApi {
 
@@ -77,6 +84,19 @@ export class SoftpayApi {
   async getTransaction(accessToken: string, requestId: string): Promise<Transaction> {
     const result$: any = this.httpClient.get(
       this.softpayUrl + "/api-gateway/v2/api/cloud/transactions/" + requestId, {
+        headers: {
+          "Authorization": `Bearer ${accessToken}`,
+          "Content-Type": "application/json"
+        }
+      }
+    );
+    return firstValueFrom(result$);
+  }
+
+  async startTransaction(accessToken: string, request: StartTransactionRequest): Promise<any> {
+    const result$: any = this.httpClient.put(
+      this.softpayUrl + "/api-gateway/v2/api/cloud/transactions/" + request.requestId,
+      JSON.stringify(request), {
         headers: {
           "Authorization": `Bearer ${accessToken}`,
           "Content-Type": "application/json"

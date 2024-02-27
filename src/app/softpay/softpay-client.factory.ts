@@ -16,6 +16,16 @@ export enum Failure {
 @Injectable({providedIn: "root"})
 export class SoftpayClient {
 
+  public processAppId() {
+    const promise = new Promise<string>((resolve, reject) => {
+      const client = this.create(failure => {
+        resolve(failure);
+      });
+      client.processAppId();
+    });
+    return promise;
+  }
+
   public processPending(requestId: string): Promise<Failure> {
     const promise = new Promise<Failure>((resolve, reject) => {
       const client = this.create(failure => {

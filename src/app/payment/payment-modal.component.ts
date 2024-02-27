@@ -51,6 +51,16 @@ export class PaymentModalComponent {
     const request = await this.softpayApi.createRequest(accessToken, "PAYMENT");
     console.log(request);
 
+    const appId = await this.softpayClient.processAppId();
+    console.log(appId);
+
+    await this.softpayApi.startTransaction(accessToken, {
+      requestId: request.requestId,
+      amount: this.amount!,
+      appId: appId,
+      currencyCode: "DKK"
+    });
+
     const failure = await this.softpayClient.processPending(request.requestId)
     console.log(failure);
 
