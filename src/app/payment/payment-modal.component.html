@@ -1,0 +1,36 @@
+<div class="modal-header">
+  <h4 class="modal-title"
+      id="modal-basic-title">Profile update</h4>
+  <button type="button"
+          class="btn-close"
+          aria-label="Close"
+          (click)="activeModal.dismiss()"></button>
+</div>
+<form novalidate
+      [class.was-validated]="wasFormValidated()"
+      #userForm="ngForm"
+      (ngSubmit)="onSubmit(userForm)">
+  <div class="modal-body">
+
+    <div class="mb-3">
+      <label>Amount</label>
+      <div class="input-group">
+        <span class="input-group-text">DKK</span>
+        <input type="text"
+               class="form-control"
+               name="amount"
+               required
+               [(ngModel)]="amount">
+        <span class="input-group-text">.00</span>
+        <div class="invalid-feedback">Amount cannot be empty</div>
+      </div>
+    </div>
+
+  </div>
+  <div class="modal-footer">
+    <button type="submit"
+            class="btn btn-outline-dark">Pay
+    </button>
+  </div>
+
+</form>

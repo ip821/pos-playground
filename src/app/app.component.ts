@@ -6,6 +6,8 @@ import {NgbModal, NgbModule} from "@ng-bootstrap/ng-bootstrap";
 import {ProductGridComponent} from "./products/product-grid.component";
 import {TProduct} from "./products/product";
 import printJS from "print-js";
+import {PaymentModalComponent} from "./payment/payment-modal.component";
+import {SettingsModalComponent} from "./settings/settings-modal.component";
 
 @Component({
   selector: 'ip-app-root',
@@ -17,7 +19,9 @@ import printJS from "print-js";
 export class AppComponent {
   title = 'ng-playground';
 
-  constructor() {
+  constructor(
+    private readonly modal: NgbModal
+  ) {
   }
 
   public readonly products: TProduct[] = [
@@ -28,5 +32,13 @@ export class AppComponent {
 
   onPrintClicked() {
     printJS("receipt-div", "html");
+  }
+
+  onPayClicked() {
+    this.modal.open(PaymentModalComponent);
+  }
+
+  onSettingsClick() {
+    this.modal.open(SettingsModalComponent);
   }
 }

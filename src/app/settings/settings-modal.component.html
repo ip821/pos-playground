@@ -1,0 +1,56 @@
+<form novalidate
+      #userForm="ngForm"
+      [class.was-validated]="wasFormValidated()"
+      (ngSubmit)="onSubmit(userForm)">
+  <div class="modal-header">
+    <h4 class="modal-title"
+        id="modal-basic-title">Settings</h4>
+    <button type="button"
+            class="btn-close"
+            aria-label="Close"
+            (click)="activeModal.dismiss()"></button>
+  </div>
+  <div class="modal-body">
+    <div class="mb-3">
+      <label for="clientId">Client ID</label>
+      <input
+        id="clientId"
+        class="form-control"
+        type="text"
+        required
+        name="clientId"
+        [(ngModel)]="paymentSettings.clientId"
+      />
+      <div class="invalid-feedback">The field cannot be empty</div>
+    </div>
+
+    <div class="mb-3">
+      <label>Secret</label>
+      <input
+        id="secret"
+        class="form-control"
+        type="text"
+        required
+        name="secret"
+        [(ngModel)]="paymentSettings.secret"
+      />
+      <div class="invalid-feedback">The field cannot be empty</div>
+    </div>
+
+    <div class="mb-3">
+      <label>App ID</label>
+      <input
+        id="appId"
+        class="form-control"
+        type="text"
+        name="appId"
+        [(ngModel)]="paymentSettings.appId"
+      />
+    </div>
+  </div>
+  <div class="modal-footer">
+    <button type="submit"
+            class="btn btn-outline-dark">Save
+    </button>
+  </div>
+</form>
