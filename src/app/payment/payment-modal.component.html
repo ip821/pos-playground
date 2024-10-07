@@ -19,6 +19,7 @@
         <input type="number"
                class="form-control"
                name="amount"
+               [readonly]="isLoading"
                required
                inputAutoFocus
                [(ngModel)]="amount">
@@ -39,7 +40,13 @@
 
   </div>
   <div class="modal-footer">
+    <div class="spinner-border"
+         *ngIf="isLoading"
+         role="status">
+      <span class="sr-only"></span>
+    </div>
     <button type="submit"
+            [disabled]="isLoading"
             class="btn btn-outline-dark">Pay
     </button>
   </div>

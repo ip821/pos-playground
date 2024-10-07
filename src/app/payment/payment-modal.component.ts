@@ -1,4 +1,4 @@
-import {Component} from '@angular/core';
+import {Component, OnInit} from '@angular/core';
 
 import {NgbActiveModal, NgbDatepickerModule} from '@ng-bootstrap/ng-bootstrap';
 import {FormsModule, NgForm} from "@angular/forms";
@@ -13,6 +13,7 @@ export type PaymentModalComponentResult = {
   requestId: string;
   merchantRef: string;
   failure?: Failure;
+  amount: number;
 };
 
 @Component({
@@ -21,7 +22,7 @@ export type PaymentModalComponentResult = {
   imports: [NgbDatepickerModule, FormsModule, InputFocusDirective, NgIf],
   templateUrl: './payment-modal.component.html',
 })
-export class PaymentModalComponent {
+export class PaymentModalComponent implements OnInit {
 
   constructor(
     public readonly activeModal: NgbActiveModal,
@@ -33,58 +34,67 @@ export class PaymentModalComponent {
   }
 
   public amount?: number = undefined;
-  private isFormValid = true;
   public errorMessage?: string;
-  public appId?: string;
+  public appId!: string;
+  public paymentSettings!: PaymentSettings;
+  public isLoading = false;
+  private isFormValid = true;
+
+  async ngOnInit(): Promise<void> {
+    this.paymentSettings = this.paymentSettingsService.getPaymentSettings();
+    let appId = this.paymentSettings.appId;
+    if (!appId) {
+      appId = await this.softpayClient.processAppId();
+    }
+    this.appId = appId;
+  }
 
   async onSubmit(form: NgForm) {
     this.isFormValid = !!form.valid;
     if (this.isFormValid) {
-      await this.makePayment(this.paymentSettingsService.getPaymentSettings(), 5);
-      const result = await this.makePayment(this.paymentSettingsService.getPaymentSettings(), this.amount!);
+      const result = await this.makePayment(this.amount!);
       if (result)
         this.activeModal.close(result);
     }
   }
 
-  private async makePayment(paymentSettings: PaymentSettings, amount: number): Promise<PaymentModalComponentResult | undefined> {
+  private async makePayment(amount: number): Promise<PaymentModalComponentResult | undefined> {
     this.errorMessage = "";
+    this.isLoading = true;
     try {
-      const accessToken = await this.softpayAuth.getAccessToken(paymentSettings.clientId, paymentSettings.secret);
+      const {clientId, secret} = this.paymentSettings;
+      const accessToken = await this.softpayAuth.getAccessToken(clientId, secret);
       const merchants = await this.softpayApi.getMerchants(accessToken);
 
       const merchant = merchants.first();
       console.log(merchant);
+      //
+      // const request = await this.softpayApi.createRequest(accessToken, merchant.merchantReference, "PAYMENT");
+      // console.log(request);
+      //
+      // await this.softpayApi.startTransaction(
+      //   accessToken,
+      //   merchant.merchantReference,
+      //   request.requestId, {
+      //     amount: (amount * 100).toString(),
+      //     appId: this.appId,
+      //     currencyCode: "DKK"
+      //   });
 
-      const request = await this.softpayApi.createRequest(accessToken, merchant.merchantReference, "PAYMENT");
-      console.log(request);
-
-      let appId = paymentSettings.appId;
-      if (!appId) {
-        appId = await this.softpayClient.processAppId();
-      }
-      this.appId = appId;
-      console.log(appId);
-
-      await this.softpayApi.startTransaction(
-        accessToken,
-        merchant.merchantReference,
-        request.requestId, {
-          amount: (amount * 100).toString(),
-          appId: appId,
-          currencyCode: "DKK"
-        });
-
-      const failure = await this.softpayClient.processPending(request.requestId)
-      console.log(failure);
+      // const failure = await this.softpayClient.processPending(request.requestId)
+      // console.log(failure);
 
       return {
-        requestId: request.requestId,
-        merchantRef: merchant.merchantReference,
-        failure
+        requestId: "a1",
+        // requestId: request.requestId,
+         merchantRef: merchant.merchantReference,
+        amount
+        //failure
       };
     } catch (e: any) {
       this.errorMessage = e.error.message ?? "Unknown error";
+    } finally {
+      this.isLoading = false;
     }
 
     return undefined;

@@ -7,7 +7,8 @@
   </div>
   <form class="container-fluid justify-content-end">
     <button class="btn btn-outline-secondary"
-            type="button" (click)="onSettingsClick()">
+            type="button"
+            (click)="onSettingsClick()">
       Settings...
     </button>
   </form>
@@ -24,12 +25,13 @@
     <i class="bi bi-credit-card"></i>
     Pay
   </button>
-  <button type="button"
-          class="btn btn-success ms-3"
-          (click)="onPrintClicked()">
-    <i class="bi bi-printer"></i>
-    Print receipt
-  </button>
+  <a href="saperaagent://printing" #printingRef>
+    <button type="button"
+            class="btn btn-success ms-3">
+      <i class="bi bi-printer"></i>
+      Print receipt
+    </button>
+  </a>
 </div>
 <br>
 <div class="container d-flex justify-content-center">
